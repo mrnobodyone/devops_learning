@@ -1,2 +1,6 @@
 keys/
 .vagrant/
+*.retry
+*.log
+.ansible/
+__pycache__/
