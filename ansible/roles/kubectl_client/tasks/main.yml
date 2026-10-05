@@ -1,0 +1,29 @@
+---
+- name: Установить kubectl и helm
+  community.general.snap:
+    name: "{{ item }}"
+    classic: true
+  loop: [kubectl, helm]
+
+- name: Создать каталог .kube
+  ansible.builtin.file:
+    path: "{{ kubectl_client_home }}/.kube"
+    state: directory
+    owner: "{{ kubectl_client_user }}"
+    group: "{{ kubectl_client_user }}"
+    mode: "0700"
+
+- name: Получить kubeconfig с master
+  ansible.builtin.fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: /tmp/k3s.yaml
+    flat: true
+  delegate_to: "{{ groups['k3s_server'][0] }}"
+
+- name: Положить kubeconfig для пользователя
+  ansible.builtin.copy:
+    content: "{{ lookup('file', '/tmp/k3s.yaml') | regex_replace('127.0.0.1', k3s_server_ip) }}"
+    dest: "{{ kubectl_client_home }}/.kube/config"
+    owner: "{{ kubectl_client_user }}"
+    group: "{{ kubectl_client_user }}"
+    mode: "0600"

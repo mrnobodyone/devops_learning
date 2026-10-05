@@ -4,3 +4,21 @@
   become: true
   roles:
     - common
+
+- name: k3s server
+  hosts: k3s_server
+  become: true
+  roles:
+    - k3s_server
+
+- name: k3s agents
+  hosts: k3s_agents
+  become: true
+  roles:
+    - k3s_agent
+
+- name: kubectl и helm на bastion
+  hosts: management
+  become: true
+  roles:
+    - kubectl_client
