@@ -37,6 +37,13 @@ Vagrant.configure("2") do |config|
           destination: "/home/vagrant/.ssh/id_ed25519"
         node.vm.provision "shell", privileged: false,
           inline: "chmod 600 ~/.ssh/id_ed25519"
+        node.vm.provision "shell", privileged: false, inline: <<~SH
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ansible git make pipx
+          pipx install ansible-lint || true
+          pipx install yamllint || true
+          [ -d ~/devops_learning ] || git clone https://github.com/mrnobodyone/devops_learning.git ~/devops_learning
+        SH
       end
     end
   end
