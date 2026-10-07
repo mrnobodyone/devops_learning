@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
         node.vm.provision "file",
           source: "keys/ansible_ed25519",
           destination: "/home/vagrant/.ssh/id_ed25519"
-        node.vm.provision "shell", privileged: false,
+          node.vm.provision "shell", privileged: false,
           inline: "chmod 600 ~/.ssh/id_ed25519"
         node.vm.provision "shell", privileged: false, inline: <<~SH
           sudo apt-get update -qq
@@ -46,5 +46,5 @@ Vagrant.configure("2") do |config|
         SH
       end
     end
-  end
+    end
 end
