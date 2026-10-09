@@ -1,4 +1,13 @@
 ---
+- name: Библиотека python3-debian (нужна модулю deb822_repository)
+  ansible.builtin.apt:
+    name:
+      - python3-debian
+      - gpg
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
 - name: Репозиторий HashiCorp
   ansible.builtin.deb822_repository:
     name: hashicorp
