@@ -4,3 +4,6 @@ keys/
 *.log
 .ansible/
 __pycache__/
+.terraform/
+*.tfstate
+*.tfstate.*
