@@ -4,11 +4,6 @@ provider "helm" {
   }
 }
 
-provider "kubectl" {
-  config_path      = pathexpand(var.kubeconfig)
-  load_config_file = true
-}
-
 # --- cert-manager ---
 resource "helm_release" "cert_manager" {
   name             = "cert-manager"
@@ -21,18 +16,17 @@ resource "helm_release" "cert_manager" {
   timeout          = 600
 
   set {
-    name  = "crds.enabled" # в старых версиях чарта: installCRDs
+    name  = "crds.enabled"
     value = "true"
   }
 }
 
-data "kubectl_file_documents" "issuers" {
-  content = file("${path.module}/manifests/cert-manager-issuers.yaml")
-}
-
-resource "kubectl_manifest" "issuers" {
-  for_each  = data.kubectl_file_documents.issuers.manifests
-  yaml_body = each.value
+# --- CA и ClusterIssuer'ы ---
+resource "helm_release" "issuers" {
+  name      = "platform-issuers"
+  chart     = "${path.module}/charts/platform-issuers"
+  namespace = "cert-manager"
+  wait      = true
 
   depends_on = [helm_release.cert_manager]
 }
@@ -52,11 +46,14 @@ resource "helm_release" "argocd" {
 }
 
 # --- корневое приложение (app-of-apps) ---
-resource "kubectl_manifest" "root_app" {
-  yaml_body = file("${path.module}/manifests/root-app.yaml")
+resource "helm_release" "root_app" {
+  name      = "platform-root"
+  chart     = "${path.module}/charts/platform-root"
+  namespace = "argocd"
+  wait      = true
 
   depends_on = [
     helm_release.argocd,
-    kubectl_manifest.issuers,
+    helm_release.issuers,
   ]
 }
